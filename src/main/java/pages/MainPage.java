@@ -22,8 +22,6 @@ public class MainPage extends  AbsBasePage{
         WebElement inputEmail = form.findElement(By.xpath(".//input[@name = 'email']"));
         WebElement inputPassword = form.findElement(By.xpath(".//input[@name = 'password']"));
         WebElement submit = form.findElement(By.xpath(".//button[@type = 'submit']"));
-        driver.manage().timeouts().implicitlyWait(5,TimeUnit.SECONDS);
-        System.out.println(System.getProperty("email") + " email");
         inputEmail.sendKeys(System.getProperty("email"));
         inputPassword.sendKeys(System.getProperty("password"));
         submit.submit();
