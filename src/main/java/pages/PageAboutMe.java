@@ -8,25 +8,23 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class PageAboutMe extends AbsBasePage {
 
-    private static final String path = "/lk/biography/personal/";
+    private static final String PATH = "/lk/biography/personal/";
 
     public PageAboutMe(WebDriver driver) {
         super(driver);
     }
 
     @Override
-    public void open(String path) {
-        super.open(PageAboutMe.path);
+    protected String getPath() {
+        return PATH;
     }
 
-    public void enterToLK() {
-        driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
-        driver.get("https://otus.ru/lk/biography/personal/");
-    }
+
 
     public void personalInfo(String fName, String fname_Latin, String lname, String lname_latin, String blogName, String birthday) {
         enterToTextArea(driver.findElement(By.id("id_fname")), fName);
@@ -37,7 +35,7 @@ public class PageAboutMe extends AbsBasePage {
         enterToTextArea(driver.findElement(By.xpath("//input[@name='date_of_birth']")), birthday);
     }
 
-    public void userLocation(String country) {
+    public void userLocation(String country,String city) {
         WebDriverWait wait = new WebDriverWait(driver, 5);
         driver.findElement(By.cssSelector("div:nth-child(1) > div.container__col.container__col_9.container__col_md-8.container__col_middle > div > label > div")).click();
         driver.findElement(By.cssSelector(String.format("button[title='%s']", country))).click();
@@ -46,9 +44,9 @@ public class PageAboutMe extends AbsBasePage {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        WebElement city = wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector("div:nth-child(2) > div.container__col.container__col_9.container__col_md-8.container__col_middle > div > label > div")));
-        city.click();
-        WebElement arrCity = wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector("button[title='Москва']")));
+        WebElement citys = wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector("div:nth-child(2) > div.container__col.container__col_9.container__col_md-8.container__col_middle > div > label > div")));
+        citys.click();
+        WebElement arrCity = wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector(String.format("button[title='%s']",city))));
         arrCity.click();
     }
 
@@ -67,19 +65,18 @@ public class PageAboutMe extends AbsBasePage {
         driver.findElement(By.cssSelector("div.container__col.container__col_9.container__col_md-8.container__col_middle > div:nth-child(1) > div:nth-child(2) > label")).click();
     }
 
-    public void addSkypeContacts(String skype) {
-            driver.findElement(By.cssSelector(".placeholder")).click();
-            driver.findElement(By.cssSelector("button[@data-value='skype']")).click();
-            driver.findElement(By.id("id_contact-0-value")).sendKeys(skype);
-    }
-    public void addViberContacts(String viber){
-        WebDriverWait wait = new WebDriverWait(driver,10);
-        wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector(".placeholder")));
-        driver.findElement(By.cssSelector("")).click();
-
-        driver.findElement(By.cssSelector("input[name='contact-1-service']")).click();
-        driver.findElement(By.cssSelector("button[title='Viber']")).click();
-        driver.findElement(By.id("id_contact-1-value")).sendKeys(viber);
+    public void addContacts(String contactType, String contactText){
+        List<WebElement> contactElements = findAllElem("//div[contains(@class, 'custom-select')]/../input[contains(@id, 'id_contact')]");
+        String inputText = contactElements.get(contactElements.size()-1).getAttribute("value");
+        if(!inputText.isEmpty()){
+            clickElementByXpath("//button[.='Добавить']");
+            contactElements = findAllElem("//div[contains(@class, 'custom-select')]/../input[contains(@id, 'id_contact')]");
+        }
+        clickElementByXpath("//span[.='Способ связи']");
+        clickElementByXpath(String.format("button[title='%s']",contactType));
+        int intElem = contactElements.size();
+        contactElements.get(intElem -1).click();
+        contactElements.get(intElem -1).sendKeys(contactText);
     }
 
     public void enterToTextArea(WebElement element, String text) {

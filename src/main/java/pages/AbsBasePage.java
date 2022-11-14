@@ -7,11 +7,21 @@ public abstract class AbsBasePage extends AbsPageObject {
 
     public final static String BASE_URL = System.getProperty("base.url");
 
+    private final Header header;
+
     public AbsBasePage(WebDriver driver) {
         super(driver);
+        this.header = new Header(driver);
     }
 
-    public void open(String path) {
-        driver.get(BASE_URL + path);
+    public void open() {
+        driver.get(BASE_URL + getPath());
     }
+
+    abstract protected String getPath();
+
+    public Header getHeader() {
+        return header;
+    }
+
 }

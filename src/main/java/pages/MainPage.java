@@ -16,15 +16,9 @@ public class MainPage extends  AbsBasePage{
         super(driver);
     }
 
-    public void auth(){
-        driver.findElement(By.cssSelector(".header2__auth")).click();
-        WebElement form = driver.findElement(By.xpath("//form[@action = '/login/']"));
-        WebElement inputEmail = form.findElement(By.xpath(".//input[@name = 'email']"));
-        WebElement inputPassword = form.findElement(By.xpath(".//input[@name = 'password']"));
-        WebElement submit = form.findElement(By.xpath(".//button[@type = 'submit']"));
-        inputEmail.sendKeys(System.getProperty("email"));
-        inputPassword.sendKeys(System.getProperty("password"));
-        submit.submit();
-
+    @Override
+    protected String getPath() {
+        return "";
     }
+
 }

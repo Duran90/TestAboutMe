@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import pages.LoginPage;
 import pages.MainPage;
 import pages.PageAboutMe;
 
@@ -27,8 +28,10 @@ public class TestPageAboutMe {
     String country = "Россия";
     String city = "Москва";
     String langLevelVal = "Элементарный уровень (Elementary)";
-    String skype = "Тестовый скайп";
-    String viber = "Тестовый вайбер";
+    String firsContact = "Skype";
+    String inputTextFirsContact = "Тестовый скайп";
+    String secondContact = "Viber";
+    String inputTextSecondContact = "Тестовый вайбер";
 
 
     @BeforeEach
@@ -50,27 +53,24 @@ public class TestPageAboutMe {
     public void otusTest(){
         MainPage mainPage = new MainPage(driver);
         PageAboutMe pageAboutMe = new PageAboutMe(driver);
-        driver.get(System.getProperty("base.url"));
+        mainPage.open();
         logger.info("Сайт открыт");
-        mainPage.auth();
+        LoginPage lp = mainPage.getHeader().sinInClick();
+        lp.signIn(System.getProperty("email"),System.getProperty("password"));
 
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-        pageAboutMe.enterToLK();
+        mainPage.getHeader().openProfile();
+
         fillAboutMe();
+
         openClearBrowser();
-        mainPage.auth();
-        pageAboutMe.enterToLK();
+        lp.signIn(System.getProperty("email"),System.getProperty("password"));
+        mainPage.getHeader().openProfile();
+
         asserPersonalIfo(fname,fnamelatin,lname,lname_latin,blogName,birthday);
         assertUserLocation(country,city);
         assertLang(langLevelVal);
         assertReadyToMove();
         assertWorkFormat();
-        assertSkypeContact(skype);
-        assertViberContact(viber);
     }
     private void openClearBrowser(){
         driver.quit();
@@ -83,12 +83,12 @@ public class TestPageAboutMe {
     public void fillAboutMe(){
         PageAboutMe pageAboutMe = new PageAboutMe(driver);
         pageAboutMe.personalInfo(fname,fnamelatin,lname,lname_latin,blogName,birthday);
-        pageAboutMe.userLocation(country);
+        pageAboutMe.userLocation(country,city);
         pageAboutMe.languageLevel(langLevelVal);
         pageAboutMe.readyToMove();
         pageAboutMe.workFormat();
-        pageAboutMe.addSkypeContacts(skype);
-        pageAboutMe.addViberContacts(viber);
+        pageAboutMe.addContacts(firsContact,inputTextFirsContact);
+        pageAboutMe.addContacts(secondContact, inputTextSecondContact);
         driver.findElement(By.xpath("//div[@class = 'lk-cv-action-buttons']//button[@title = 'Сохранить и продолжить']")).submit();
     }
 
