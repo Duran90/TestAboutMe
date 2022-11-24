@@ -1,7 +1,7 @@
 package pages;
 
 import org.openqa.selenium.WebDriver;
-import pageObject.AbsPageObject;
+import common.AbsPageObject;
 
 public abstract class AbsBasePage extends AbsPageObject {
 
@@ -15,10 +15,8 @@ public abstract class AbsBasePage extends AbsPageObject {
     }
 
     public void open() {
-        driver.get(BASE_URL + getPath());
+        driver.get(BASE_URL);
     }
-
-    abstract protected String getPath();
 
     public Header getHeader() {
         return header;

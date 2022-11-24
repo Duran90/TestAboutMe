@@ -5,19 +5,18 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
 import pages.LoginPage;
 import pages.MainPage;
 import pages.PageAboutMe;
-
 
 import java.util.concurrent.TimeUnit;
 
 public class TestPageAboutMe {
     private final org.apache.logging.log4j.Logger logger = LogManager.getLogger(TestPageAboutMe.class);
     private WebDriver driver;
+
+    private PageAboutMe pageAboutMe;
 
     String fname = "Игорь";
     String fnamelatin = "Карданов";
@@ -45,99 +44,95 @@ public class TestPageAboutMe {
 
 
     @AfterEach
-   public void startDown(){
-        if(driver != null){driver.close();driver.quit();}
+    public void startDown() {
+        if (driver != null) {
+            driver.close();
+            driver.quit();
+        }
     }
 
     @Test
-    public void otusTest(){
+    public void otusTest() throws DriverNotSupportedException {
         MainPage mainPage = new MainPage(driver);
-        PageAboutMe pageAboutMe = new PageAboutMe(driver);
         mainPage.open();
         logger.info("Сайт открыт");
         LoginPage lp = mainPage.getHeader().sinInClick();
-        lp.signIn(System.getProperty("email"),System.getProperty("password"));
-
-        mainPage.getHeader().openProfile();
-
-        fillAboutMe();
+        lp.signIn(System.getProperty("email"), System.getProperty("password"));
+        fillAboutMe(mainPage.getHeader().openProfile());
 
         openClearBrowser();
-        lp.signIn(System.getProperty("email"),System.getProperty("password"));
-        mainPage.getHeader().openProfile();
 
-        asserPersonalIfo(fname,fnamelatin,lname,lname_latin,blogName,birthday);
-        assertUserLocation(country,city);
+        mainPage = new MainPage(driver);
+        mainPage.open();
+        logger.info("Сайт открыт");
+        lp = mainPage.getHeader().sinInClick();
+        lp.signIn(System.getProperty("email"), System.getProperty("password"));
+        pageAboutMe = mainPage.getHeader().openProfile();
+        logger.info("Начало проверок");
+        asserPersonalIfo(fname, fnamelatin, lname, lname_latin, blogName, birthday);
+        assertUserLocation(country, city);
         assertLang(langLevelVal);
-        assertReadyToMove();
-        assertWorkFormat();
-    }
-    private void openClearBrowser(){
-        driver.quit();
-        driver = new ChromeDriver();
-        driver.get("https://otus.ru");
+        assertSkypeContact(inputTextFirsContact);
+        assertViberContact(inputTextSecondContact);
+        logger.info("Проверки завершены");
     }
 
+    private void openClearBrowser() throws DriverNotSupportedException {
+        startDown();
+        setUp();
+    }
 
 
-    public void fillAboutMe(){
-        PageAboutMe pageAboutMe = new PageAboutMe(driver);
-        pageAboutMe.personalInfo(fname,fnamelatin,lname,lname_latin,blogName,birthday);
-        pageAboutMe.userLocation(country,city);
+    private void fillAboutMe(PageAboutMe pageAboutMe) {
+        pageAboutMe.personalInfo(fname, fnamelatin, lname, lname_latin, blogName, birthday);
+        pageAboutMe.userCountry(country);
+        pageAboutMe.userCity(city);
         pageAboutMe.languageLevel(langLevelVal);
-        pageAboutMe.readyToMove();
-        pageAboutMe.workFormat();
-        pageAboutMe.addContacts(firsContact,inputTextFirsContact);
-        pageAboutMe.addContacts(secondContact, inputTextSecondContact);
-        driver.findElement(By.xpath("//div[@class = 'lk-cv-action-buttons']//button[@title = 'Сохранить и продолжить']")).submit();
+        pageAboutMe.addContact(firsContact, inputTextFirsContact);
+        pageAboutMe.addContact(secondContact, inputTextSecondContact);
+        pageAboutMe.submit();
     }
 
-    public void asserPersonalIfo(String fname, String fnamelatin, String lname, String lname_latin, String blogName,String birthday){
-        String name = driver.findElement(By.id("id_fname")).getText();
+    private void asserPersonalIfo(String fname, String fnamelatin, String lname, String lname_latin, String blogName, String birthday) {
+        String name = pageAboutMe.getNameText();
         Assertions.assertEquals(name, fname);
-        String latinName = driver.findElement(By.id("id_fname_latin")).getText();
-        Assertions.assertEquals(fnamelatin,latinName);
-        String lastName = driver.findElement(By.id("id_lname")).getText();
-        Assertions.assertEquals( lname, lastName);
-        String latinLastName = driver.findElement(By.id("id_lname_latin")).getText();
-        Assertions.assertEquals( lname_latin, latinLastName);
-        String bName = driver.findElement(By.id("id_blog_name")).getText();
-        Assertions.assertEquals(blogName,bName);
-        String date = driver.findElement(By.xpath("//input[@name='date_of_birth']")).getText();
-        Assertions.assertEquals(birthday,date);
+        String latinName = pageAboutMe.getNameLatinText();
+        Assertions.assertEquals(fnamelatin, latinName);
+        String lastName = pageAboutMe.getLastNameText();
+        Assertions.assertEquals(lname, lastName);
+        String latinLastName = pageAboutMe.getLastNameLatinText();
+        Assertions.assertEquals(lname_latin, latinLastName);
+        String bName = pageAboutMe.getBlogNameText();
+        Assertions.assertEquals(blogName, bName);
+        String date = pageAboutMe.getDayText();
+        Assertions.assertEquals(birthday, date);
     }
 
-    public void assertUserLocation(String country, String city){
-       String userCountry =  driver.findElement(By.cssSelector("div:nth-child(1) > div.container__col.container__col_9.container__col_md-8.container__col_middle > div > label > div")).getText();
-       Assertions.assertEquals( country,userCountry);
-       String userCity = driver.findElement(By.cssSelector("div:nth-child(2) > div.container__col.container__col_9.container__col_md-8.container__col_middle > div > label > div")).getText();
-        Assertions.assertEquals( city,userCity);
+    private void assertUserLocation(String country, String city) {
+        String userCountry = pageAboutMe.getCountryText();
+        Assertions.assertEquals(country, userCountry);
+        String userCity = pageAboutMe.getCityText();
+        Assertions.assertEquals(city, userCity);
     }
 
-    public void assertLang(String langLevelVal){
-        String langLevel = driver.findElement(By.cssSelector("div.container__col.container__col_9.container__col_ssm-12 > ")).getText();
-        Assertions.assertEquals(langLevelVal,langLevel);
-    }
-    public void assertReadyToMove(){
-        String valueNo = driver.findElement(By.id("id_ready_to_relocate_0")).getAttribute("checked");
-        String valueYes = driver.findElement(By.id("id_ready_to_relocate_1")).getAttribute("checked");
-        Assertions.assertNull(valueNo);
-        Assertions.assertNotNull(valueYes);
-
+    private void assertLang(String langLevelVal) {
+        String langLevel = pageAboutMe.getLangLvlText();
+        Assertions.assertEquals(langLevelVal, langLevel);
     }
 
-    public void assertWorkFormat(){
-        String fullDay = driver.findElement(By.cssSelector("//input[value='full']")).getAttribute("checked");
-        Assertions.assertNotNull(fullDay);
+
+    public void assertSkypeContact(String value) {
+        String valueType = pageAboutMe.getContactTypeText(0);
+        Assertions.assertEquals(firsContact.toLowerCase(), valueType);
+        String valueSkypeText = pageAboutMe.getContactValueText(0);
+        Assertions.assertEquals(value, valueSkypeText);
     }
 
-    public void assertSkypeContact(String skype){
-        String valueSkype = driver.findElement(By.id("id_contact-0-value")).getText();
-        Assertions.assertEquals(skype,valueSkype);
-    }
-    public void assertViberContact(String viber){
-        String valueViber = driver.findElement(By.id("id_contact-1-value")).getText();
-        Assertions.assertEquals(viber,valueViber);
+    public void assertViberContact(String value) {
+        String valueType = pageAboutMe.getContactTypeText(1);
+        Assertions.assertEquals(secondContact.toLowerCase(), valueType);
+        String valueText = pageAboutMe.getContactValueText(1);
+        Assertions.assertEquals(value, valueText);
     }
 
 }

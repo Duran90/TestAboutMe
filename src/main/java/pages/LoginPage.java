@@ -3,7 +3,7 @@ package pages;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import pageObject.AbsPageObject;
+import common.AbsPageObject;
 
 public class LoginPage extends AbsPageObject {
 
@@ -12,7 +12,7 @@ public class LoginPage extends AbsPageObject {
         super(driver);
     }
 
-    public MainPage signIn(String email, String password){
+    public MainPage signIn(String email, String password) {
         WebElement form = driver.findElement(By.xpath("//form[@action = '/login/']"));
         WebElement inputEmail = form.findElement(By.xpath(".//input[@name = 'email']"));
         WebElement inputPassword = form.findElement(By.xpath(".//input[@name = 'password']"));
